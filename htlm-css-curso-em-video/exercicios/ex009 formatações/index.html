@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outras formatações</title>
+</head>
+<body>
+    <h1>Outras formatações</h1>
+    <h2>Código-fonte</h2>
+    <p>O comando <code>document.getElementById('teste')</code> é escrito em linguagem javaScript</p>
+    <!-- a tag pre leva em consideração a quebra de linha e a identação da forma como foi digitado entre as tags -->
+    <pre>
+        <code>
+    num = int(input('Digite um número'))
+    if num % 2 == 0:
+        print(f'O número {num} é PAR')
+    else:
+        print(f'o número {num} é IMPAR')
+    print('Fim do programa')
+        </code>
+    </pre>
+    <h2>Citações simples</h2>
+    <p>Como diria o pai de um amigo: <q>o computador é um burro muito rápido</q></p>
+    <h2>Citações completas</h2>
+    <p>Segundo Fulano, que seu livro Exemplo de um livro qualquer:</p>
+    <!-- O blockquot vai permitir fazer uma citação e dentro da tag é possível incluir o site de referência. 
+    Não vai aparecer o o link na página e nem vai fazer uma diferença visual,
+    mas o mecanismo do site vai saber que alí é uma citação e que aquele link é a referência da citação -->
+    <blockquote cite="LINK DA CITAÇÃO AQUI">
+        Exemplo de texto retirado do livro aqui
+    </blockquote>
+    <h2>Abreviações</h2>
+    <p>Estou estudando <abbr title="HyperText Markup Language">HTML</abbr> e <abbr title="Cascading Style Sheets">CSS</abbr>.</p>
+    <h2>Texto invertido</h2>
+    <p><bdo dir="rtl">Estou aprendendo a criar coisas em HTML.</bdo></p>
+</body>
+</html>
