@@ -31,7 +31,7 @@ label2 = Label(
 )
 label2.pack()
 
-# Se usarmos o justify sem utilizar o anchor o testeo será justificado sempre ao centro, mas obedecendo à instruçã do argumento
+# Se usarmos o justify sem utilizar o anchor o testeo será justificado sempre ao centro, mas obedecendo à instrução do argumento
 label3 = Label(
     menu_inicial,
     text='Frase de teste\nOutra frase de teste\nE outra',
