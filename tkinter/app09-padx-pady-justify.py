@@ -5,7 +5,7 @@ menu_inicial = Tk()
 menu_inicial.title('Título')
 menu_inicial.geometry('500x500')
 
-# O pa define a distância entre a borda externa até o conteúdo interno, ou seja, da borda até o começo da letra, seja horizontal (padx) ou vertical (pady)
+# O pad define a distância entre a borda externa até o conteúdo interno, ou seja, da borda até o começo da letra, seja horizontal (padx) ou vertical (pady)
 label1 = Label(
     menu_inicial,
     text='Frase de teste',
