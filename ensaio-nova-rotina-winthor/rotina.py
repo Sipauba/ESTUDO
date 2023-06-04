@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-import mysql.connector
+#import mysql.connector
 from tkcalendar import DateEntry
 
 """
@@ -47,8 +47,6 @@ frame_cabecalho = Frame(root,
               )
 frame_cabecalho.pack(pady=(50,10))
 
-frame_radio = Frame(root)
-frame_radio.pack()
 
 #-------------------------------------------------------------
 
@@ -78,17 +76,28 @@ data_final.grid(row=1,column=3,  pady=(0,20), padx=(20,20))
 
 #-------------------------------------------------------------------
 
-valor_rad_aprov = IntVar()
-valor_rad_cancel = IntVar()
-valor_rad_todos = IntVar()
 
-radio_aprov = Radiobutton(frame_radio,text='Aprovados', variable = valor_rad_aprov, value=1, indicatoron=1)
+frame_radio = Frame(root)
+frame_radio.pack()
+
+valor_radio = IntVar()
+
+def aprovados():
+    print('Aprovados')
+    
+def cancelados():
+    print('Cancelados')
+
+def todos():
+    print('Todos')
+
+radio_aprov = Radiobutton(frame_radio,text='Aprovados', variable = valor_radio, value=1, command=aprovados, indicatoron=1)
 radio_aprov.grid(row=0, column=0)
 
-radio_cancel = Radiobutton(frame_radio,text='Cancelados', variable = valor_rad_cancel, value=2, indicatoron=1)
+radio_cancel = Radiobutton(frame_radio,text='Cancelados', variable = valor_radio, value=2, command=cancelados, indicatoron=1)
 radio_cancel.grid(row=0,column=1)
 
-radio_todos = Radiobutton(frame_radio,text='Todos', variable = valor_rad_todos, value=3, indicatoron=1)
+radio_todos = Radiobutton(frame_radio,text='Todos', variable = valor_radio, value=3, command=todos, indicatoron=1)
 radio_todos.grid(row=0, column=2)
 
 btn = Button(root,text='Pesquisar')
