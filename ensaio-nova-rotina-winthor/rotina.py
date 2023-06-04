@@ -1,44 +1,58 @@
 from tkinter import *
 from tkinter import ttk
-#import mysql.connector
+import cx_Oracle
 from tkcalendar import DateEntry
 
 """
-# Variável que irá conectar a aplicação com o banco de dados
-conecta_banco = mysql.connector.connect(
-    host='192.168.40.112',
-    user='mateus19',
-    password='florentim19',
-    database='db_teste'
-)
+# Parâmetros de conexão
+host = '10.85.0.73'
+servico = 'XE'
+usuario = 'SYSTEM'
+senha = 'CAIXA'
 
+# Encontra o arquivo que aponta para o banco de dados
+cx_Oracle.init_oracle_client(lib_dir="C:/oraclexe/app/oracle/product/10.2.0/server/NETWORK/ADMIN/instantclient_19_19")
+
+# Faz a conexão ao banco de dados
+conecta_banco = cx_Oracle.connect(usuario, senha, f'{host}/{servico}')
+
+# Cria um cursor no banco para que seja possível fazer consultas e alterações no banco de dados
 cursor = conecta_banco.cursor()
-
-def consultar():
-    # Executa um comando SQL para cbuscar todos os dados da tabela
-    cursor.execute('select * from tbteste')
-
-    # Limpa todo o campo da treeview para apresentar o novo resultado
-    tree.delete(*tree.get_children())
-
-    # Preenche a treeview com o resultado da consulta
-    for linha in cursor:
-        # Este comando vai percorrer cada linha encontrada na consulta e inserir na treeview
-        tree.insert('','end',values=linha)
-
-    cursor.close()
-    conecta_banco.close()
-
 """
+# Esta função executa a consulta que irá preencher a treeview com as informações sobre arequisição
+def consultar():
+
+    filial = campo_filial.get()
+    num_req = campo_requisicao.get()
+    data_ini = data_inicial.get()
+    data_fin = data_final.get()
+
+    consulta = 'SELECT * FROM PCPREREQMATCONSUMOC WHERE CODFILIAL = {}'.format(filial)
+    
+    # Estas condições irão concatenar com o valor da variável 'consulta' dependendo se será fornecido o número da requisição ou as datas inicial e final
+    if num_req:
+        consulta += 'AND NUMREQ = {}'.format(num_req)
+    if data_ini and data_final:
+        consulta += 'AND DATAREQ BETWEEN {} AND {}'.format(data_ini, data_fin)
+
+    # Executa a consulta
+    cursor.execute(consulta)
+
+    # Limpa todos os dados que possam estar na treeview
+    tree.delete(*tree.get_children)
+
+    # Imprime linha a linha o resultado na treeview
+    for linha in cursor:
+        tree.insert('','end', values=linha)
+
 
 root = Tk()
 root.geometry('800x500')
 root.title('Status Req. Mat. Consumo')
 
-
-
 #----------------------------------------------
 
+# Frame que contém as informações iniciais necessárias para a consulta 
 frame_cabecalho = Frame(root,
               width=640,
               height=110,
@@ -54,6 +68,7 @@ label_filial = Label(frame_cabecalho, text='Filial')
 label_filial.grid(row=0, column=0, pady=(20,0))
 
 campo_filial = ttk.Combobox(frame_cabecalho, width=4, values=['1','3','4','5','6','17','18','19','20','61','70','99'])
+campo_filial.current(4)
 campo_filial.grid(row=1, column=0, pady=(0,20), padx=(20,0))
 
 label_num_req = Label(frame_cabecalho, text='Nº Requisição')
@@ -76,7 +91,7 @@ data_final.grid(row=1,column=3,  pady=(0,20), padx=(20,20))
 
 #-------------------------------------------------------------------
 
-
+# Frame apenas para conter os radios
 frame_radio = Frame(root)
 frame_radio.pack()
 
@@ -100,7 +115,9 @@ radio_cancel.grid(row=0,column=1)
 radio_todos = Radiobutton(frame_radio,text='Todos', variable = valor_radio, value=3, command=todos, indicatoron=1)
 radio_todos.grid(row=0, column=2)
 
-btn = Button(root,text='Pesquisar')
+radio_todos.select()
+
+btn = Button(root, text='Pesquisar', command=consultar)
 btn.pack(pady=(20,30))
 
 # Define o a quantidade de colunas
@@ -109,7 +126,7 @@ tree = ttk.Treeview(root, columns=('coluna1','coluna2','coluna3'))
 tree.heading('coluna1',text='ID')
 tree.heading('coluna2',text='Nome')
 tree.heading('coluna3',text='Idade')
-# Por padrão é incluido uma coluna inicial 'obrigatória' (columnId) que pode ser ocutada com o comando abaixo
+# Por padrão é incluido uma coluna inicial 'obrigatória' (columnId) que pode ser ocultada com o comando abaixo
 tree.column('#0',width=0)
 tree.pack()
 
