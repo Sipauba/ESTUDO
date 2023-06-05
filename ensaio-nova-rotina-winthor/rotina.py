@@ -3,7 +3,7 @@ from tkinter import ttk
 import cx_Oracle
 from tkcalendar import DateEntry
 
-"""
+
 # Parâmetros de conexão
 host = '10.85.0.73'
 servico = 'XE'
@@ -18,22 +18,22 @@ conecta_banco = cx_Oracle.connect(usuario, senha, f'{host}/{servico}')
 
 # Cria um cursor no banco para que seja possível fazer consultas e alterações no banco de dados
 cursor = conecta_banco.cursor()
-"""
+
 # Esta função executa a consulta que irá preencher a treeview com as informações sobre arequisição
 def consultar():
 
     filial = campo_filial.get()
     num_req = campo_requisicao.get()
-    data_ini = data_inicial.get()
-    data_fin = data_final.get()
+    data_ini = data_inicial.get_date()
+    data_fin = data_final.get_date()
 
     consulta = 'SELECT * FROM PCPREREQMATCONSUMOC WHERE CODFILIAL = {}'.format(filial)
     
     # Estas condições irão concatenar com o valor da variável 'consulta' dependendo se será fornecido o número da requisição ou as datas inicial e final
     if num_req:
-        consulta += 'AND NUMREQ = {}'.format(num_req)
+        consulta += 'AND NUMPREREQUISICAO = {}'.format(num_req)
     if data_ini and data_final:
-        consulta += 'AND DATAREQ BETWEEN {} AND {}'.format(data_ini, data_fin)
+        consulta += 'AND DATA BETWEEN {} AND {}'.format(data_ini, data_fin)
 
     # Executa a consulta
     cursor.execute(consulta)
@@ -121,13 +121,18 @@ btn = Button(root, text='Pesquisar', command=consultar)
 btn.pack(pady=(20,30))
 
 # Define o a quantidade de colunas
-tree = ttk.Treeview(root, columns=('coluna1','coluna2','coluna3'))
+tree = ttk.Treeview(root, columns=('coluna1','coluna2','coluna3','coluna4','coluna5','coluna6','coluna7'))
 # Nomeia o cabeçalho das colunas
-tree.heading('coluna1',text='ID')
-tree.heading('coluna2',text='Nome')
-tree.heading('coluna3',text='Idade')
+tree.heading('coluna1',text='NUMPREREQ')
+tree.heading('coluna2',text='CODFILIAL')
+tree.heading('coluna3',text='DATA')
+tree.heading('coluna3',text='CODFUNCREQ')
+tree.heading('coluna3',text='MOTIVO')
+tree.heading('coluna3',text='SITUACAO')
+tree.heading('coluna3',text='NUMTRANSVENDA')
 # Por padrão é incluido uma coluna inicial 'obrigatória' (columnId) que pode ser ocultada com o comando abaixo
 tree.column('#0',width=0)
 tree.pack()
 
 root.mainloop()
+#
