@@ -27,21 +27,26 @@ def consultar():
     data_ini = data_inicial.get_date()
     data_fin = data_final.get_date()
 
-    consulta = 'SELECT * FROM PCPREREQMATCONSUMOC WHERE CODFILIAL = {}'.format(filial)
+    consulta = 'SELECT NUMPREREQUISICAO, CODFILIAL, DATA, CODFUNCREQ, MOTIVO, SITUACAO, NUMTRANSVENDA FROM PCPREREQMATCONSUMOC WHERE CODFILIAL = {}'.format(filial)
     
     # Estas condições irão concatenar com o valor da variável 'consulta' dependendo se será fornecido o número da requisição ou as datas inicial e final
     if num_req:
         consulta += 'AND NUMPREREQUISICAO = {}'.format(num_req)
+    if data_ini and data_fin:
+        data_ini = data_ini.strftime('%d-%b-%Y')
+        data_fin = data_fin.strftime('%d-%b-%Y')
+        consulta += " AND DATA BETWEEN TO_DATE('{}', 'DD-MON-YYYY') AND TO_DATE('{}', 'DD-MON-YYYY')".format(data_ini, data_fin)
+    """
     if data_ini and data_final:
         consulta += 'AND DATA BETWEEN {} AND {}'.format(data_ini, data_fin)
-
+    """
     # Executa a consulta
     cursor.execute(consulta)
 
     # Limpa todos os dados que possam estar na treeview
-    tree.delete(*tree.get_children)
+    tree.delete(*tree.get_children())
 
-    # Imprime linha a linha o resultado na treeview
+    # Imprime linha a linha o resultado na treeview (da primeira até a ultima)
     for linha in cursor:
         tree.insert('','end', values=linha)
 
@@ -81,12 +86,14 @@ label_data_ini = Label(frame_cabecalho, text='Data Inicial')
 label_data_ini.grid(row=0, column=2, pady=(20,0))
 
 data_inicial = DateEntry(frame_cabecalho, date_pattern='dd/mm/yyyy')
+data_inicial.set_date(None)
 data_inicial.grid(row=1, column=2, pady=(0,20), padx=(20,0))
 
 label_data_fin = Label(frame_cabecalho, text='Data Final')
 label_data_fin.grid(row=0,column=3, pady=(20,0))
 
 data_final = DateEntry(frame_cabecalho, date_pattern='dd/mm/yyyy')
+data_final.set_date(None)
 data_final.grid(row=1,column=3,  pady=(0,20), padx=(20,20))
 
 #-------------------------------------------------------------------
@@ -122,17 +129,35 @@ btn.pack(pady=(20,30))
 
 # Define o a quantidade de colunas
 tree = ttk.Treeview(root, columns=('coluna1','coluna2','coluna3','coluna4','coluna5','coluna6','coluna7'))
+
 # Nomeia o cabeçalho das colunas
-tree.heading('coluna1',text='NUMPREREQ')
-tree.heading('coluna2',text='CODFILIAL')
+tree.heading('coluna1',text='NUMREQ')
+tree.heading('coluna2',text='FILIAL')
 tree.heading('coluna3',text='DATA')
-tree.heading('coluna3',text='CODFUNCREQ')
-tree.heading('coluna3',text='MOTIVO')
-tree.heading('coluna3',text='SITUACAO')
-tree.heading('coluna3',text='NUMTRANSVENDA')
+tree.heading('coluna4',text='CODFUNC')
+tree.heading('coluna5',text='MOTIVO')
+tree.heading('coluna6',text='SITUACAO')
+tree.heading('coluna7',text='TRANSVENDA')
+
+tree.column('coluna1', width=60)
+tree.column('coluna2', width=40)
+tree.column('coluna3', width=90)
+tree.column('coluna4', width=90)
+tree.column('coluna5', width=90)
+tree.column('coluna6', width=70)
+tree.column('coluna7', width=90)
+
 # Por padrão é incluido uma coluna inicial 'obrigatória' (columnId) que pode ser ocultada com o comando abaixo
 tree.column('#0',width=0)
+
 tree.pack()
+
+# Define a posição e as dimensões da treeview na janela
+x = 50
+y = 250
+width = 700
+height = 200
+tree.place(x=x, y=y, width=width, height=height)
 
 root.mainloop()
 #
