@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 import cx_Oracle
 from tkcalendar import DateEntry
-
+from PIL import Image
 
 # Parâmetros de conexão
 host = '10.85.0.73'
@@ -32,7 +32,7 @@ def consultar():
     
     # Estas condições irão concatenar com o valor da variável 'consulta' dependendo se será fornecido o número da requisição ou as datas inicial e final
     if filial == '':
-        consulta += '(1, 3, 4, 5, 6, 7, 17 ,18 ,19 ,20 ,61 ,70 , 99)'
+        consulta += '(1, 3, 4, 5, 6, 7, 17 ,18 ,19 ,20 ,61 ,70)'
     if num_req:
         consulta += 'AND NUMPREREQUISICAO = {}'.format(num_req)
     if data_ini and data_fin:
@@ -40,10 +40,15 @@ def consultar():
         data_ini = data_ini.strftime('%d-%b-%Y')
         data_fin = data_fin.strftime('%d-%b-%Y')
         consulta += " AND DATA BETWEEN TO_DATE('{}', 'DD-MON-YYYY') AND TO_DATE('{}', 'DD-MON-YYYY')".format(data_ini, data_fin)
+    # Faz a verificação nos radios    
     if valor_radio.get() == 1:
         consulta += "AND SITUACAO = 'A'"
     if valor_radio.get() == 2:
         consulta += "AND SITUACAO = 'C'"
+    if valor_radio.get() == 3:
+        consulta += "AND SITUACAO = 'L'"
+    
+    consulta += 'ORDER BY DATA DESC'
         
 
     # Executa a consulta
@@ -52,14 +57,33 @@ def consultar():
     # Limpa todos os dados que possam estar na treeview
     tree.delete(*tree.get_children())
 
-    # Imprime linha a linha o resultado na treeview (da primeira até a ultima)
-    for linha in cursor:
-        tree.insert('','end', values=linha)
+    # Cria uma configuração externa à treeview que altera a cor das linhas
+    tree.tag_configure("aprovados", foreground="blue")
+    tree.tag_configure("cancelados", foreground="red")
+    tree.tag_configure("pendentes", foreground="black")
 
+    # Imprime linha a linha o resultado na treeview (da primeira até a ultima)
+    """    for linha in cursor:
+        tree.insert('','end', values=linha)"""
+        
+    # Faz uma verifica
+    for linha in cursor:
+        situacao = linha[5]  # Obtém o valor do campo 'SITUACAO' da linha
+        if situacao == 'A':
+            tree.insert("", "end", values=linha, tags=("aprovados",))
+        elif situacao == 'C':
+            tree.insert("", "end", values=linha, tags=("cancelados",))
+        elif situacao == 'L':
+            tree.insert("", "end", values=linha, tags=("pendentes",))
+        else:
+            tree.insert("", "end", values=linha)
+    
 
 root = Tk()
 root.geometry('800x500')
 root.title('Status Req. Mat. Consumo')
+root.iconbitmap("icon.ico")
+root.resizable(False,False)
 
 #----------------------------------------------
 
@@ -79,7 +103,7 @@ frame_cabecalho.pack(pady=(50,10))
 label_filial = Label(frame_cabecalho, text='Filial')
 label_filial.grid(row=0, column=0, pady=(20,0))
 
-campo_filial = ttk.Combobox(frame_cabecalho, width=4, values=['','1','3','4','5','6','7','17','18','19','20','61','70','99'])
+campo_filial = ttk.Combobox(frame_cabecalho, width=4, values=['','1','3','4','5','6','7','17','18','19','20','61','70'])
 # Mantém a filial 6 ao iniciar o programa
 #campo_filial.current(4)
 campo_filial.grid(row=1, column=0, pady=(0,20), padx=(20,0))
@@ -116,8 +140,11 @@ radio_aprov.grid(row=0, column=0)
 radio_cancel = Radiobutton(frame_radio,text='Cancelados', variable = valor_radio, value=2, indicatoron=1)
 radio_cancel.grid(row=0,column=1)
 
-radio_todos = Radiobutton(frame_radio,text='Todos', variable = valor_radio, value=3, indicatoron=1)
-radio_todos.grid(row=0, column=2)
+radio_pend = Radiobutton(frame_radio,text='Pendentes', variable = valor_radio, value=3, indicatoron=1)
+radio_pend.grid(row=0,column=2)
+
+radio_todos = Radiobutton(frame_radio,text='Todos', variable = valor_radio, value=4, indicatoron=1)
+radio_todos.grid(row=0, column=3)
 
 radio_todos.select()
 
@@ -154,8 +181,11 @@ tree.column('coluna7', width=90)
 
 # Por padrão é incluido uma coluna inicial 'obrigatória' (columnId) que pode ser ocultada com o comando abaixo
 tree.column('#0',width=0)
-
 tree.pack()
+
+scrollbar = ttk.Scrollbar(root, orient='vertical', command=tree.yview)
+tree.configure(yscrollcommand=scrollbar.set)
+scrollbar.pack(side="right", fill="y")
 
 # Define a posição e as dimensões da treeview na janela
 x = 50
@@ -163,5 +193,32 @@ y = 250
 width = 700
 height = 200
 tree.place(x=x, y=y, width=width, height=height)
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+frame_legenda = Frame(root)
+frame_legenda.pack()
+frame_legenda.place(x=50, y=450)
+
+frame_azul = Frame(frame_legenda, width=10, height=10, bg='blue')
+frame_azul.grid(row=0, column=0)
+
+label_azul = Label(frame_legenda, text='Aprovado', foreground='blue')
+label_azul.grid(row=0, column=1)
+
+frame_vermelho = Frame(frame_legenda, width=10, height=10, bg='red')
+frame_vermelho.grid(row=0, column=2)
+
+label_vermelho = Label(frame_legenda, text='Cancelado', foreground='red')
+label_vermelho.grid(row=0, column=3)
+
+frame_preto = Frame(frame_legenda, width=10, height=10, bg='black')
+frame_preto.grid(row=0, column=4)
+
+label_preto = Label(frame_legenda, text='Pendente')
+label_preto.grid(row=0, column=5)
+
+
+
 
 root.mainloop()
