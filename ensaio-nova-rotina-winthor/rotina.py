@@ -11,7 +11,7 @@ usuario = 'SYSTEM'
 senha = 'CAIXA'
 
 # Encontra o arquivo que aponta para o banco de dados
-cx_Oracle.init_oracle_client(lib_dir="C:/oraclexe/app/oracle/product/10.2.0/server/NETWORK/ADMIN/instantclient_19_19")
+cx_Oracle.init_oracle_client(lib_dir="C:/oraclexe/app/oracle/product/10.2.0/server/NETWORK/ADMIN")
 
 # Faz a conexão ao banco de dados
 conecta_banco = cx_Oracle.connect(usuario, senha, f'{host}/{servico}')
@@ -82,7 +82,7 @@ def consultar():
 root = Tk()
 root.geometry('800x500')
 root.title('Status Req. Mat. Consumo')
-root.iconbitmap("icon.ico")
+#root.iconbitmap("icon.ico")
 root.resizable(False,False)
 
 #----------------------------------------------
