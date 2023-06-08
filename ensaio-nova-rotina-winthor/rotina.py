@@ -1,8 +1,8 @@
 from tkinter import *
 from tkinter import ttk
+from tkcalendar import *
+from babel import *
 import cx_Oracle
-from tkcalendar import DateEntry
-from PIL import Image
 
 # Parâmetros de conexão
 host = '10.85.0.73'
@@ -11,13 +11,15 @@ usuario = 'SYSTEM'
 senha = 'CAIXA'
 
 # Encontra o arquivo que aponta para o banco de dados
-cx_Oracle.init_oracle_client(lib_dir="C:/oraclexe/app/oracle/product/10.2.0/server/NETWORK/ADMIN")
+cx_Oracle.init_oracle_client(lib_dir="./instantclient_21_10")
 
 # Faz a conexão ao banco de dados
 conecta_banco = cx_Oracle.connect(usuario, senha, f'{host}/{servico}')
 
 # Cria um cursor no banco para que seja possível fazer consultas e alterações no banco de dados
 cursor = conecta_banco.cursor()
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Esta função executa a consulta que irá preencher a treeview com as informações sobre arequisição
 def consultar():
@@ -27,7 +29,6 @@ def consultar():
     data_ini = data_inicial.get_date()
     data_fin = data_final.get_date()
 
-    #consulta = 'SELECT NUMPREREQUISICAO, CODFILIAL, DATA, CODFUNCREQ, MOTIVO, SITUACAO, NUMTRANSVENDA FROM PCPREREQMATCONSUMOC'
     consulta = 'SELECT NUMPREREQUISICAO, CODFILIAL, DATA, CODFUNCREQ, MOTIVO, SITUACAO, NUMTRANSVENDA FROM PCPREREQMATCONSUMOC WHERE CODFILIAL IN {}'.format(filial)
     
     # Estas condições irão concatenar com o valor da variável 'consulta' dependendo se será fornecido o número da requisição ou as datas inicial e final
@@ -78,11 +79,19 @@ def consultar():
         else:
             tree.insert("", "end", values=linha)
     
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 root = Tk()
-root.geometry('800x500')
+# Esse trecho até o geometry() é um algorítmo que faz a janela iniciar bem no centro da tela, independente a resolução do monitor
+largura = 800
+altura = 500
+largura_screen = root.winfo_screenwidth()
+altura_screen = root.winfo_screenheight()
+posx = largura_screen/2 - largura/2
+posy = altura_screen/2 - altura/2
+root.geometry('%dx%d+%d+%d' % (largura, altura, posx, posy))
+
 root.title('Status Req. Mat. Consumo')
-#root.iconbitmap("icon.ico")
 root.resizable(False,False)
 
 #----------------------------------------------
@@ -162,12 +171,12 @@ for coluna in ('coluna1','coluna2','coluna3','coluna4','coluna5','coluna6','colu
 
 
 # Nomeia o cabeçalho das colunas
-tree.heading('coluna1',text='NUMREQ')
+tree.heading('coluna1',text='Nº REQ')
 tree.heading('coluna2',text='FILIAL')
 tree.heading('coluna3',text='DATA')
 tree.heading('coluna4',text='CODFUNC')
 tree.heading('coluna5',text='MOTIVO')
-tree.heading('coluna6',text='SITUACAO')
+tree.heading('coluna6',text='STATUS')
 tree.heading('coluna7',text='TRANSVENDA')
 
 # Define uma largura pardrão para cada coluna, pode ser expandida normalmente clicando e arrastando
@@ -188,11 +197,7 @@ tree.configure(yscrollcommand=scrollbar.set)
 scrollbar.pack(side="right", fill="y")
 
 # Define a posição e as dimensões da treeview na janela
-x = 50
-y = 250
-width = 700
-height = 200
-tree.place(x=x, y=y, width=width, height=height)
+tree.place(x=50, y=250, width=700, height=200)
 
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -218,7 +223,13 @@ frame_preto.grid(row=0, column=4)
 label_preto = Label(frame_legenda, text='Pendente')
 label_preto.grid(row=0, column=5)
 
+#-----------------------------------------------------------------------------------------------------------
 
+frame_credito = Frame(root)
+frame_credito.pack()
+frame_credito.place(x=690, y=450)
 
+label_credito = Label(frame_credito, text="By Sipauba", fg='gray')
+label_credito.pack()
 
 root.mainloop()
